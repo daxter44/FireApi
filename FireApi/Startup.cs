@@ -22,6 +22,7 @@ namespace FireApi
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
         }
 
         public IConfiguration Configuration { get; }
@@ -29,7 +30,6 @@ namespace FireApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddCors();
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("DeviceList"));
             services.AddControllers();
@@ -89,8 +89,11 @@ namespace FireApi
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseRouting();
 

@@ -18,7 +18,7 @@ namespace FireApi.Services
         Task<Task> Update(Device device);
         Task<Task>  Delete(Guid id);
     }
-    public class DeviceService : IDeviceService
+    public class DeviceService : IDeviceService 
     {
 
         private DataContext _context;

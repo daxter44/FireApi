@@ -9,9 +9,11 @@ using AutoMapper;
 using FireApi.Entity;
 using FireApi.Helpers;
 using FireApi.Models;
+using FireApi.Models.Device;
 using FireApi.Models.Users;
 using FireApi.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -41,9 +43,9 @@ namespace FireApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]AuthenticateModel model)
+        public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel model)
         {
-            var user = _userService.Authenticate(model.Username, model.Password);
+            var user = await _userService.Authenticate(model.Username, model.Password).ConfigureAwait(false);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -76,7 +78,7 @@ namespace FireApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]RegisterModel model)
+        public async Task<IActionResult> Register([FromBody]RegisterModel model)
         {
             // map model to entity
             var user = _mapper.Map<User>(model);
@@ -84,7 +86,7 @@ namespace FireApi.Controllers
             try
             {
                 // create user
-                _userService.Create(user, model.Password);
+                await _userService.Create(user, model.Password).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -96,25 +98,25 @@ namespace FireApi.Controllers
 
         [Authorize(Roles = Role.Admin)]
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var users = _userService.GetAll();
+            var users = await _userService.GetAll().ConfigureAwait(false);
             var model = _mapper.Map<IList<UserModel>>(users);
             return Ok(model);
         }
 
         [Authorize(Roles = Role.Admin)]
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var user = _userService.GetById(id);
+            var user = await _userService.GetById(id).ConfigureAwait(false);
             var model = _mapper.Map<UserModel>(user);
             return Ok(model);
         }
 
         [Authorize(Roles = Role.Admin)]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UpdateModel model)
+        public async Task<IActionResult> Update(int id, [FromBody]UpdateModel model)
         {
             // map model to entity and set id
             var user = _mapper.Map<User>(model);
@@ -123,7 +125,7 @@ namespace FireApi.Controllers
             try
             {
                 // update user 
-                _userService.Update(user, model.Password);
+                await _userService.Update(user, model.Password).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -135,10 +137,28 @@ namespace FireApi.Controllers
 
         [Authorize(Roles = Role.Admin)]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _userService.Delete(id);
+            await _userService.Delete(id).ConfigureAwait(false);
             return Ok();
+        }
+        [HttpPost("addDevice")]
+        public async Task<ActionResult<Device>> AddDeviceItem(int userId, [FromBody]AddDeviceModel model)
+        {
+            // map model to entity
+            var device = _mapper.Map<Device>(model);
+
+            try
+            {
+                // create device
+                await _userService.AddDevice(userId, device).ConfigureAwait(false);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

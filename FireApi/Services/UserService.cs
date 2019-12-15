@@ -2,6 +2,7 @@
 using FireApi.Entity;
 using FireApi.Helpers;
 using FireApi.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +13,14 @@ namespace FireApi.Services
    
         public interface IUserService
         {
-            User Authenticate(string username, string password);
-            IEnumerable<User> GetAll();
-            User GetById(int id);
-            User Create(User user, string password);
-            void Update(User user, string password = null);
-            void Delete(int id);
-        }
+            Task<User> Authenticate(string username, string password);
+            Task<IEnumerable<User>> GetAll();
+            Task<User> GetById(int id);
+            Task<User> Create(User user, string password);
+            Task<Task> Update(User user, string password = null);
+            Task<Task> Delete(int id);
+            Task<Device> AddDevice(int userId, Device device);
+    }
 
         public class UserService : IUserService
         {
@@ -29,12 +31,12 @@ namespace FireApi.Services
                 _context = context;
             }
 
-            public User Authenticate(string username, string password)
+            public async Task<User> Authenticate(string username, string password)
             {
                 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                     return null;
 
-                var user = _context.Users.SingleOrDefault(x => x.Username == username);
+                var user = await _context.Users.SingleOrDefaultAsync(x => x.Username == username).ConfigureAwait(false);
 
                 // check if username exists
                 if (user == null)
@@ -48,23 +50,23 @@ namespace FireApi.Services
                 return user;
             }
 
-            public IEnumerable<User> GetAll()
+            public async Task<IEnumerable<User>> GetAll()
             {
-                return _context.Users;
+                return await _context.Users.ToListAsync().ConfigureAwait(false);
             }
 
-            public User GetById(int id)
+            public async Task<User> GetById(int id)
             {
-                return _context.Users.Find(id);
+                return await _context.Users.FindAsync(id).ConfigureAwait(false);
             }
 
-            public User Create(User user, string password)
+            public async Task<User> Create(User user, string password)
             {
                 // validation
                 if (string.IsNullOrWhiteSpace(password))
                     throw new AppException("Password is required");
-
-                if (_context.Users.Any(x => x.Username == user.Username))
+                var anyExist = await _context.Users.AnyAsync(x => x.Username == user.Username).ConfigureAwait(false);
+                if (anyExist)
                     throw new AppException("Username \"" + user.Username + "\" is already taken");
 
                 byte[] passwordHash, passwordSalt;
@@ -74,14 +76,14 @@ namespace FireApi.Services
                 user.PasswordSalt = passwordSalt;
 
                 _context.Users.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync().ConfigureAwait(false);
 
                 return user;
             }
 
-            public void Update(User userParam, string password = null)
+            public async Task<Task> Update(User userParam, string password = null)
             {
-                var user = _context.Users.Find(userParam.Id);
+                var user = await _context.Users.FindAsync(userParam.Id);
 
                 if (user == null)
                     throw new AppException("User not found");
@@ -114,22 +116,33 @@ namespace FireApi.Services
                 }
 
                 _context.Users.Update(user);
-                _context.SaveChanges();
+               await _context.SaveChangesAsync().ConfigureAwait(false);
+            return Task.CompletedTask;
             }
 
-            public void Delete(int id)
+            public async Task<Task> Delete(int id)
             {
-                var user = _context.Users.Find(id);
+                var user = await _context.Users.FindAsync(id);
                 if (user != null)
                 {
                     _context.Users.Remove(user);
-                    _context.SaveChanges();
+                   await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
+            return Task.CompletedTask;
+            }
+            public async Task<Device> AddDevice(int userid, Device deviceItem)
+            {
+                var user = _context.Users.Find(userid);
+                user.Devices.Add(deviceItem);
+                _context.Entry(user).State = EntityState.Modified;
+                _context.DeviceItems.Add(deviceItem);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                return deviceItem;
             }
 
-            // private helper methods
+        // private helper methods
 
-            private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
             {
                 if (password == null) throw new ArgumentNullException("password");
                 if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");
