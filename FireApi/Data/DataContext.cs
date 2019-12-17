@@ -17,5 +17,13 @@ namespace FireApi.Data
         public DbSet<Device> DeviceItems { get; set; }
         public DbSet<User> Users { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Device>().ToTable("Devices");
+            modelBuilder.Entity<User>().ToTable("Users");
+
+
+        }
+
     }
 }

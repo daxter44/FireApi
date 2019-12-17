@@ -7,5 +7,6 @@ namespace FireApi.Data
 {
     public class UserContext
     {
+
     }
 }

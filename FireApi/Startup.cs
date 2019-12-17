@@ -31,7 +31,9 @@ namespace FireApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("DeviceList"));
+
+            services.AddDbContext<DataContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("DataContext")));
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

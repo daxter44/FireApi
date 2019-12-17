@@ -20,7 +20,8 @@ namespace FireApi.Services
             Task<Task> Update(User user, string password = null);
             Task<Task> Delete(int id);
             Task<Device> AddDevice(int userId, Device device);
-    }
+            Task<IEnumerable<Device>> GetDevices(int userid);
+        }
 
         public class UserService : IUserService
         {
@@ -133,16 +134,21 @@ namespace FireApi.Services
             public async Task<Device> AddDevice(int userid, Device deviceItem)
             {
                 var user = _context.Users.Find(userid);
+                _context.DeviceItems.Add(deviceItem);
                 user.Devices.Add(deviceItem);
                 _context.Entry(user).State = EntityState.Modified;
-                _context.DeviceItems.Add(deviceItem);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
                 return deviceItem;
             }
+            public async Task<IEnumerable<Device>> GetDevices(int userid)
+        {
+            var user = await _context.Users.FindAsync(userid);
+            return user.Devices;
+        }
 
         // private helper methods
 
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+            private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
             {
                 if (password == null) throw new ArgumentNullException("password");
                 if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");

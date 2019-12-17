@@ -106,21 +106,21 @@ namespace FireApi.Controllers
         }
 
         [Authorize(Roles = Role.Admin)]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpPost("getById")]
+        public async Task<IActionResult> GetById([FromBody]UserModel postModel)
         {
-            var user = await _userService.GetById(id).ConfigureAwait(false);
+
+            var user = await _userService.GetById(postModel.Id).ConfigureAwait(false);
             var model = _mapper.Map<UserModel>(user);
             return Ok(model);
         }
 
-        [Authorize(Roles = Role.Admin)]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody]UpdateModel model)
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody]UpdateModel model)
         {
             // map model to entity and set id
             var user = _mapper.Map<User>(model);
-            user.Id = id;
 
             try
             {
@@ -136,14 +136,22 @@ namespace FireApi.Controllers
         }
 
         [Authorize(Roles = Role.Admin)]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPut("delete")]
+        public async Task<IActionResult> Delete([FromBody]UpdateModel model)
         {
-            await _userService.Delete(id).ConfigureAwait(false);
-            return Ok();
+            try
+            {
+                await _userService.Delete(model.Id).ConfigureAwait(false);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpPost("addDevice")]
-        public async Task<ActionResult<Device>> AddDeviceItem(int userId, [FromBody]AddDeviceModel model)
+        public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
         {
             // map model to entity
             var device = _mapper.Map<Device>(model);
@@ -151,7 +159,31 @@ namespace FireApi.Controllers
             try
             {
                 // create device
-                await _userService.AddDevice(userId, device).ConfigureAwait(false);
+                await _userService.AddDevice(model.UserId, device).ConfigureAwait(false);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("myDevices")]
+        public async Task<IActionResult> GetDevicesByUserId([FromBody]UserIdModel model)
+        {
+            // only allow users show myDevices
+            var currentUserId = int.Parse(User.Identity.Name);
+            if (model.Id != currentUserId )
+                return Forbid();
+
+            try
+            {
+                var devices = await _userService.GetDevices(model.Id).ConfigureAwait(false);
+                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
+                return Ok(modelToReturn);
+                await _userService.GetDevices(model.Id).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
