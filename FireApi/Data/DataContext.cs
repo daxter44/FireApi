@@ -22,7 +22,6 @@ namespace FireApi.Data
             modelBuilder.Entity<Device>().ToTable("Devices");
             modelBuilder.Entity<User>().ToTable("Users");
 
-
         }
 
     }

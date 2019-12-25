@@ -182,9 +182,7 @@ namespace FireApi.Controllers
             {
                 var devices = await _userService.GetDevices(model.Id).ConfigureAwait(false);
                 var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
-                return Ok(modelToReturn);
-                await _userService.GetDevices(model.Id).ConfigureAwait(false);
-                return Ok();
+                return Ok(modelToReturn);               
             }
             catch (AppException ex)
             {

@@ -142,7 +142,9 @@ namespace FireApi.Services
             }
             public async Task<IEnumerable<Device>> GetDevices(int userid)
         {
-            var user = await _context.Users.FindAsync(userid);
+            // var user = await _context.Users.FindAsync(userid);
+            var user = _context.Users
+                .Include(a => a.Devices).Where(a => a.Id == userid).FirstOrDefault();
             return user.Devices;
         }
 
