@@ -57,7 +57,7 @@ namespace FireApi
                    OnTokenValidated = context =>
                    {
                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                       var userId = int.Parse(context.Principal.Identity.Name);
+                       var userId = Guid.Parse(context.Principal.Identity.Name);
                        var user = userService.GetById(userId);
                        if (user == null)
                        {

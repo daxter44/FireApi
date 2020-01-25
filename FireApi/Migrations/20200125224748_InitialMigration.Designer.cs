@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FireApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200125183949_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200125224748_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,10 +21,28 @@ namespace FireApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("FireApi.Entity.Client", b =>
+                {
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FirmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ClientId");
+
+                    b.HasIndex("FirmId");
+
+                    b.ToTable("Clients");
+                });
+
             modelBuilder.Entity("FireApi.Entity.Device", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -33,22 +51,33 @@ namespace FireApi.Migrations
                     b.Property<int>("Temperature")
                         .HasColumnType("int");
 
-                    b.Property<int>("userId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("userId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ClientId");
 
                     b.HasIndex("userId");
 
                     b.ToTable("Devices");
                 });
 
+            modelBuilder.Entity("FireApi.Entity.Firm", b =>
+                {
+                    b.Property<Guid>("FirmId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("FirmId");
+
+                    b.ToTable("Firms");
+                });
+
             modelBuilder.Entity("FireApi.Entity.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
@@ -73,11 +102,37 @@ namespace FireApi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("FireApi.Entity.Client", b =>
+                {
+                    b.HasOne("FireApi.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FireApi.Entity.Firm", null)
+                        .WithMany("Clients")
+                        .HasForeignKey("FirmId");
+                });
+
             modelBuilder.Entity("FireApi.Entity.Device", b =>
                 {
+                    b.HasOne("FireApi.Entity.Client", null)
+                        .WithMany("Devices")
+                        .HasForeignKey("ClientId");
+
                     b.HasOne("FireApi.Entity.User", "user")
                         .WithMany("Devices")
                         .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FireApi.Entity.Firm", b =>
+                {
+                    b.HasOne("FireApi.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("FirmId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

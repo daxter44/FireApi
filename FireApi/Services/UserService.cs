@@ -15,12 +15,12 @@ namespace FireApi.Services
         {
             Task<User> Authenticate(string username, string password);
             Task<IEnumerable<User>> GetAll();
-            Task<User> GetById(int id);
+            Task<User> GetById(Guid id);
             Task<User> Create(User user, string password);
             Task<Task> Update(User user, string password = null);
-            Task<Task> Delete(int id);
-            Task<Device> AddDevice(int userId, Device device);
-            Task<IEnumerable<Device>> GetDevices(int userid);
+            Task<Task> Delete(Guid id);
+            Task<Device> AddDevice(Guid userId, Device device);
+            Task<IEnumerable<Device>> GetDevices(Guid userid);
         }
 
         public class UserService : IUserService
@@ -56,7 +56,7 @@ namespace FireApi.Services
                 return await _context.Users.ToListAsync().ConfigureAwait(false);
             }
 
-            public async Task<User> GetById(int id)
+            public async Task<User> GetById(Guid id)
             {
                 return await _context.Users.FindAsync(id).ConfigureAwait(false);
             }
@@ -121,7 +121,7 @@ namespace FireApi.Services
             return Task.CompletedTask;
             }
 
-            public async Task<Task> Delete(int id)
+            public async Task<Task> Delete(Guid id)
             {
                 var user = await _context.Users.FindAsync(id);
                 if (user != null)
@@ -131,7 +131,7 @@ namespace FireApi.Services
                 }
             return Task.CompletedTask;
             }
-            public async Task<Device> AddDevice(int userid, Device deviceItem)
+            public async Task<Device> AddDevice(Guid userid, Device deviceItem)
             {
                 var user = _context.Users.Find(userid);
                 _context.DeviceItems.Add(deviceItem);
@@ -140,7 +140,7 @@ namespace FireApi.Services
                 await _context.SaveChangesAsync().ConfigureAwait(false);
                 return deviceItem;
             }
-            public async Task<IEnumerable<Device>> GetDevices(int userid)
+            public async Task<IEnumerable<Device>> GetDevices(Guid userid)
         {
             // var user = await _context.Users.FindAsync(userid);
             var user = _context.Users

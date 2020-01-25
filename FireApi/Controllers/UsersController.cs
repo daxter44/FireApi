@@ -175,7 +175,7 @@ namespace FireApi.Controllers
         public async Task<IActionResult> GetDevicesByUserId()
         {
             // only allow users show myDevices
-            var currentUserId = int.Parse(User.Identity.Name);
+            var currentUserId = Guid.Parse(User.Identity.Name);
             if (currentUserId == null)
                 return Forbid();
 

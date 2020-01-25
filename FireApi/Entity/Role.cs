@@ -9,5 +9,7 @@ namespace FireApi.Entity
     {
         public const string Admin = "Admin";
         public const string User = "User";
+        public const string Firm = "Firm";
+        public const string Client = "Client";
     }
 }
