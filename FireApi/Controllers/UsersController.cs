@@ -83,6 +83,7 @@ namespace FireApi.Controllers
             // map model to entity
             var user = _mapper.Map<User>(model);
 
+
             try
             {
                 // create user
@@ -171,16 +172,16 @@ namespace FireApi.Controllers
 
         [AllowAnonymous]
         [HttpGet("myDevices")]
-        public async Task<IActionResult> GetDevicesByUserId([FromBody]UserIdModel model)
+        public async Task<IActionResult> GetDevicesByUserId()
         {
             // only allow users show myDevices
             var currentUserId = int.Parse(User.Identity.Name);
-            if (model.Id != currentUserId )
+            if (currentUserId == null)
                 return Forbid();
 
             try
             {
-                var devices = await _userService.GetDevices(model.Id).ConfigureAwait(false);
+                var devices = await _userService.GetDevices(currentUserId).ConfigureAwait(false);
                 var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
                 return Ok(modelToReturn);               
             }

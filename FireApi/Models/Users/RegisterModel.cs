@@ -8,6 +8,11 @@ namespace FireApi.Models.Users
 {
     public class RegisterModel
     {
+        RegisterModel()
+        {
+            Role = "User";
+        }
+
         [Required]
         public string FirstName { get; set; }
 
@@ -20,7 +25,6 @@ namespace FireApi.Models.Users
         [Required]
         public string Password { get; set; }
 
-        [Required]
         public string Role { get; set; }
     }
 }

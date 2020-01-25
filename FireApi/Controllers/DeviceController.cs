@@ -70,18 +70,14 @@ namespace FireApi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateDeviceItem(Guid id, [FromBody]UpdateModel model)
+        public async Task<IActionResult> UpdateDeviceItem(Guid id, [FromBody]UpdateDeviceModel model)
         {
             var device = _mapper.Map<Device>(model);
             if (id != device.ID)
             {
-                return BadRequest();
-            }
-            else
-            {
                 device.ID = id;
             }
-
+           
             try
             {
                 // update user 
@@ -103,6 +99,10 @@ namespace FireApi.Controllers
         {
             // map model to entity
             var device = _mapper.Map<Device>(model);
+            if(userId == 0)
+            {
+               userId = int.Parse(User.Identity.Name);
+            }
 
             try
             {
