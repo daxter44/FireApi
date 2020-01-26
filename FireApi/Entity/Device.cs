@@ -16,6 +16,8 @@ namespace FireApi.Entity
         public int Temperature { get; set; }
         [Required]
         public virtual User user { get; set; }
+        [Required]
+        public virtual Client client { get; set; }
 
     }
 }

@@ -10,6 +10,8 @@ namespace FireApi.Entity
     {
         [ForeignKey(nameof(User))]
         public Guid ClientId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public Guid? FirmId { get; set; }
         public User User { get; set; }
         public ICollection<Device> Devices { get; set; }
