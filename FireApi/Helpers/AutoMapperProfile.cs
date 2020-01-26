@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FireApi.Models.Users;
 using FireApi.Models.Device;
 using FireApi.Entity;
+using FireApi.Models.Client;
 
 namespace FireApi.Helpers
 {
@@ -20,6 +21,9 @@ namespace FireApi.Helpers
             CreateMap<Device, DeviceModel>();
             CreateMap<AddDeviceModel, Device>();
             CreateMap<UpdateDeviceModel, Device>();
+            CreateMap<CreateClientModel, Client>();
+            CreateMap<UpdateClientModel, Client>();
+            CreateMap<ClientModel, Client>();
         }
     }
 }

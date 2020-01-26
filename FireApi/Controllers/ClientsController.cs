@@ -7,6 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FireApi.Data;
 using FireApi.Entity;
+using FireApi.Services;
+using AutoMapper;
+using FireApi.Helpers;
+using Microsoft.Extensions.Options;
+using FireApi.Models.Client;
+using Microsoft.AspNetCore.Authorization;
+using FireApi.Models.Device;
 
 namespace FireApi.Controllers
 {
@@ -14,111 +21,125 @@ namespace FireApi.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
-        private readonly DataContext _context;
+        private IClientService _clientService;
+        private IMapper _mapper;
+        private readonly AppSettings _appSettings;
 
-        public ClientsController(DataContext context)
+        public ClientsController(
+            IClientService clientService,
+            IMapper mapper,
+            IOptions<AppSettings> appSettings)
         {
-            _context = context;
+            _clientService = clientService;
+            _mapper = mapper;
+            _appSettings = appSettings.Value;
         }
-
-        // GET: api/Clients
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClient()
+                
+        [AllowAnonymous]
+        [HttpPost("createClient")]
+        public async Task<IActionResult> Create([FromBody]CreateClientModel model)
         {
-            return await _context.Client.ToListAsync();
-        }
-
-        // GET: api/Clients/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(Guid id)
-        {
-            var client = await _context.Client.FindAsync(id);
-
-            if (client == null)
-            {
-                return NotFound();
-            }
-
-            return client;
-        }
-
-        // PUT: api/Clients/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(Guid id, Client client)
-        {
-            if (id != client.ClientId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(client).State = EntityState.Modified;
+            // map model to entity
+            var client = _mapper.Map<Client>(model);
+            var user = _mapper.Map<User>(model.registerModel);
+            client.User = user;
 
             try
             {
-                await _context.SaveChangesAsync();
+                // create user
+                await _clientService.Create(client, model.registerModel.Password).ConfigureAwait(false);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (AppException ex)
             {
-                if (!ClientExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
             }
-
-            return NoContent();
         }
 
-        // POST: api/Clients
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+
+        [Authorize(Roles = Role.Admin)]
+        [HttpPut("delete")]
+        public async Task<ActionResult<Client>> DeleteClient(UpdateClientModel model)
         {
-            _context.Client.Add(client);
             try
             {
-                await _context.SaveChangesAsync();
+                await _clientService.Delete(model.ClientId).ConfigureAwait(false);
+                return Ok();
             }
-            catch (DbUpdateException)
+            catch (AppException ex)
             {
-                if (ClientExists(client.ClientId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
             }
-
-            return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
         }
-
-        // DELETE: api/Clients/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Client>> DeleteClient(Guid id)
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody]UpdateClientModel model)
         {
-            var client = await _context.Client.FindAsync(id);
-            if (client == null)
+            // map model to entity and set id
+            var client = _mapper.Map<Client>(model);
+
+            try
             {
-                return NotFound();
+                // update user 
+                await _clientService.Update(client, model.Password).ConfigureAwait(false);
+                return Ok();
             }
-
-            _context.Client.Remove(client);
-            await _context.SaveChangesAsync();
-
-            return client;
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
-
-        private bool ClientExists(Guid id)
+        [Authorize(Roles = Role.Admin)]
+        [HttpPost("getById")]
+        public async Task<IActionResult> GetById([FromBody]ClientModel postModel)
         {
-            return _context.Client.Any(e => e.ClientId == id);
+
+            var client = await _clientService.GetById(postModel.ClientId).ConfigureAwait(false);
+            var model = _mapper.Map<ClientModel>(client);
+            return Ok(model);
+        }
+       
+        [HttpPost("addDevice")]
+        public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
+        {
+            // map model to entity
+            var device = _mapper.Map<Device>(model);
+
+            try
+            {
+                // create device
+                await _clientService.AddDevice(model.UserId, device).ConfigureAwait(false);
+                return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        [AllowAnonymous]
+        [HttpGet("myDevices")]
+        public async Task<IActionResult> GetDevicesByUserId()
+        {
+            // only allow users show myDevices
+            var currentUserId = Guid.Parse(User.Identity.Name);
+            if (currentUserId == null)
+                return Forbid();
+
+            try
+            {
+                var devices = await _clientService.GetDevices(currentUserId).ConfigureAwait(false);
+                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
+                return Ok(modelToReturn);
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

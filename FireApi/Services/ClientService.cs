@@ -32,6 +32,7 @@ namespace FireApi.Services
             UserService userService = new UserService(_context);
             try
             {
+                client.User.Role = Role.Client;
                 client.User = await userService.Create(client.User, password).ConfigureAwait(false);
             }catch (AppException ex)
             {
