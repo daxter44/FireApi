@@ -16,5 +16,10 @@ namespace FireApi.Entity
         public User User { get; set; }
         public ICollection<Device> Devices { get; set; }
 
+        public Client()
+        {
+            Devices = new HashSet<Device>();
+        }
+
     }
 }

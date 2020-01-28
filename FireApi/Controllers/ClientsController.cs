@@ -59,7 +59,7 @@ namespace FireApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Admin)]
+        [Authorize(Roles = Role.Firm)]
         [HttpPut("delete")]
         public async Task<ActionResult<Client>> DeleteClient(UpdateClientModel model)
         {
@@ -74,7 +74,7 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize]
+        [Authorize(Roles = Role.Firm)]
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody]UpdateClientModel model)
         {
@@ -93,7 +93,8 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize(Roles = Role.Admin)]
+
+        [Authorize(Roles = Role.Firm)]
         [HttpPost("getById")]
         public async Task<IActionResult> GetById([FromBody]ClientModel postModel)
         {
@@ -102,7 +103,8 @@ namespace FireApi.Controllers
             var model = _mapper.Map<FirmModel>(client);
             return Ok(model);
         }
-       
+
+        [Authorize(Roles = Role.Firm)]
         [HttpPost("addDevice")]
         public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
         {
@@ -112,7 +114,7 @@ namespace FireApi.Controllers
             try
             {
                 // create device
-                await _clientService.AddDevice(model.UserId, device).ConfigureAwait(false);
+                await _clientService.AddDevice(model.ClientId, device).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -121,7 +123,7 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [AllowAnonymous]
+        [Authorize]
         [HttpGet("myDevices")]
         public async Task<IActionResult> GetDevicesByUserId()
         {

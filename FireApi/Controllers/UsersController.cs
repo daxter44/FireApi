@@ -117,45 +117,6 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [HttpPost("addDevice")]
-        public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
-        {
-            // map model to entity
-            var device = _mapper.Map<Device>(model);
-
-            try
-            {
-                // create device
-                await _userService.AddDevice(model.UserId, device).ConfigureAwait(false);
-                return Ok();
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpGet("myDevices")]
-        public async Task<IActionResult> GetDevicesByUserId()
-        {
-            // only allow users show myDevices
-            var currentUserId = Guid.Parse(User.Identity.Name);
-            if (currentUserId == null)
-                return Forbid();
-
-            try
-            {
-                var devices = await _userService.GetDevices(currentUserId).ConfigureAwait(false);
-                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
-                return Ok(modelToReturn);               
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        
     }
 }

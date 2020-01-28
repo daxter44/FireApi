@@ -28,11 +28,11 @@ namespace FireApi.Services
             _context = context;
         }
 
-        public async Task<Device> AddDevice(int userid, Device deviceItem)
+        public async Task<Device> AddDevice(int clientId, Device deviceItem)
         {
-            var user = _context.Users.Find(userid);
-            user.Devices.Add(deviceItem);
-            _context.Entry(user).State = EntityState.Modified;
+            var client = _context.Client.Find(clientId);
+            client.Devices.Add(deviceItem);
+            _context.Entry(client).State = EntityState.Modified;
             _context.DeviceItems.Add(deviceItem);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return deviceItem;

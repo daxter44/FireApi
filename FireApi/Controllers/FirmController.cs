@@ -35,7 +35,8 @@ namespace FireApi.Controllers
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
-                
+
+        [Authorize(Roles = Role.Admin)]
         [AllowAnonymous]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody]CreateFirmModel model)
@@ -74,7 +75,8 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize]
+
+        [Authorize(Roles = Role.Admin)]
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody]UpdateFirmModel model)
         {
@@ -93,6 +95,7 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
         [Authorize(Roles = Role.Admin)]
         [HttpPost("getById")]
         public async Task<IActionResult> GetById([FromBody]FirmModel postModel)
@@ -102,8 +105,9 @@ namespace FireApi.Controllers
             var model = _mapper.Map<FirmModel>(firm);
             return Ok(model);
         }
-       
-        [HttpPost("addDevice")]
+
+        [Authorize(Roles = Role.Firm)]
+        [HttpPost("addClient")]
         public async Task<ActionResult<Device>> AddClientItem([FromBody]AddClientModel model)
         {
             // map model to entity
@@ -121,8 +125,8 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [AllowAnonymous]
-        [HttpGet("myDevices")]
+        [Authorize(Roles = Role.Firm)]
+        [HttpGet("myClients")]
         public async Task<IActionResult> GetClientsByUserId()
         {
             // only allow users show myDevices

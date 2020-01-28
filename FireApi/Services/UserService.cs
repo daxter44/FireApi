@@ -19,8 +19,6 @@ namespace FireApi.Services
             Task<User> Create(User user, string password);
             Task<Task> Update(User user, string password = null);
             Task<Task> Delete(Guid id);
-            Task<Device> AddDevice(Guid userId, Device device);
-            Task<IEnumerable<Device>> GetDevices(Guid userid);
         }
 
         public class UserService : IUserService
@@ -98,13 +96,7 @@ namespace FireApi.Services
 
                     user.Username = userParam.Username;
                 }
-
-                // update user properties if provided
-                if (!string.IsNullOrWhiteSpace(userParam.FirstName))
-                    user.FirstName = userParam.FirstName;
-
-                if (!string.IsNullOrWhiteSpace(userParam.LastName))
-                    user.LastName = userParam.LastName;
+                               
 
                 // update password if provided
                 if (!string.IsNullOrWhiteSpace(password))
@@ -131,23 +123,7 @@ namespace FireApi.Services
                 }
             return Task.CompletedTask;
             }
-            public async Task<Device> AddDevice(Guid userid, Device deviceItem)
-            {
-                var user = _context.Users.Find(userid);
-                _context.DeviceItems.Add(deviceItem);
-                user.Devices.Add(deviceItem);
-                _context.Entry(user).State = EntityState.Modified;
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                return deviceItem;
-            }
-            public async Task<IEnumerable<Device>> GetDevices(Guid userid)
-        {
-            // var user = await _context.Users.FindAsync(userid);
-            var user = _context.Users
-                .Include(a => a.Devices).Where(a => a.Id == userid).FirstOrDefault();
-            return user.Devices;
-        }
-
+           
         // private helper methods
 
             private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
