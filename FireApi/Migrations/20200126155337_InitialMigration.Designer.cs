@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FireApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200125224748_InitialMigration")]
+    [Migration("20200126155337_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,6 +29,12 @@ namespace FireApi.Migrations
                     b.Property<Guid?>("FirmId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ClientId");
 
                     b.HasIndex("FirmId");
@@ -42,7 +48,7 @@ namespace FireApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ClientId")
+                    b.Property<Guid>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -51,14 +57,14 @@ namespace FireApi.Migrations
                     b.Property<int>("Temperature")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("userId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ID");
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("userId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Devices");
                 });
@@ -67,6 +73,12 @@ namespace FireApi.Migrations
                 {
                     b.Property<Guid>("FirmId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Addres")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FirmId");
 
@@ -117,15 +129,15 @@ namespace FireApi.Migrations
 
             modelBuilder.Entity("FireApi.Entity.Device", b =>
                 {
-                    b.HasOne("FireApi.Entity.Client", null)
+                    b.HasOne("FireApi.Entity.Client", "client")
                         .WithMany("Devices")
-                        .HasForeignKey("ClientId");
-
-                    b.HasOne("FireApi.Entity.User", "user")
-                        .WithMany("Devices")
-                        .HasForeignKey("userId")
+                        .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("FireApi.Entity.User", null)
+                        .WithMany("Devices")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("FireApi.Entity.Firm", b =>

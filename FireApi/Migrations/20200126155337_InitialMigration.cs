@@ -28,7 +28,9 @@ namespace FireApi.Migrations
                 name: "Firms",
                 columns: table => new
                 {
-                    FirmId = table.Column<Guid>(nullable: false)
+                    FirmId = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Addres = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -46,6 +48,8 @@ namespace FireApi.Migrations
                 columns: table => new
                 {
                     ClientId = table.Column<Guid>(nullable: false),
+                    FirstName = table.Column<string>(nullable: true),
+                    LastName = table.Column<string>(nullable: true),
                     FirmId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
@@ -72,8 +76,8 @@ namespace FireApi.Migrations
                     ID = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Temperature = table.Column<int>(nullable: false),
-                    userId = table.Column<Guid>(nullable: false),
-                    ClientId = table.Column<Guid>(nullable: true)
+                    ClientId = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -83,13 +87,13 @@ namespace FireApi.Migrations
                         column: x => x.ClientId,
                         principalTable: "Clients",
                         principalColumn: "ClientId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Devices_Users_userId",
-                        column: x => x.userId,
+                        name: "FK_Devices_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -103,9 +107,9 @@ namespace FireApi.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Devices_userId",
+                name: "IX_Devices_UserId",
                 table: "Devices",
-                column: "userId");
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -20,35 +20,35 @@ namespace FireApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ClientsController : ControllerBase
+    public class FirmController : ControllerBase
     {
-        private IClientService _clientService;
+        private IFirmService _firmService;
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
 
-        public ClientsController(
-            IClientService clientService,
+        public FirmController(
+            IFirmService firmService,
             IMapper mapper,
             IOptions<AppSettings> appSettings)
         {
-            _clientService = clientService;
+            _firmService = firmService;
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
                 
         [AllowAnonymous]
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody]CreateClientModel model)
+        public async Task<IActionResult> Create([FromBody]CreateFirmModel model)
         {
             // map model to entity
-            var client = _mapper.Map<Client>(model);
+            var firm = _mapper.Map<Firm>(model);
             var user = _mapper.Map<User>(model.registerModel);
-            client.User = user;
+            firm.User = user;
 
             try
             {
                 // create user
-                await _clientService.Create(client, model.registerModel.Password).ConfigureAwait(false);
+                await _firmService.Create(firm, model.registerModel.Password).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -61,11 +61,11 @@ namespace FireApi.Controllers
 
         [Authorize(Roles = Role.Admin)]
         [HttpPut("delete")]
-        public async Task<ActionResult<Client>> DeleteClient(UpdateClientModel model)
+        public async Task<ActionResult<Client>> DeleteClient(UpdateFirmModel model)
         {
             try
             {
-                await _clientService.Delete(model.ClientId).ConfigureAwait(false);
+                await _firmService.Delete(model.FirmId).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -76,15 +76,15 @@ namespace FireApi.Controllers
         }
         [Authorize]
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody]UpdateClientModel model)
+        public async Task<IActionResult> Update([FromBody]UpdateFirmModel model)
         {
             // map model to entity and set id
-            var client = _mapper.Map<Client>(model);
+            var firm = _mapper.Map<Firm>(model);
 
             try
             {
                 // update user 
-                await _clientService.Update(client, model.Password).ConfigureAwait(false);
+                await _firmService.Update(firm, model.Password).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -95,24 +95,24 @@ namespace FireApi.Controllers
         }
         [Authorize(Roles = Role.Admin)]
         [HttpPost("getById")]
-        public async Task<IActionResult> GetById([FromBody]ClientModel postModel)
+        public async Task<IActionResult> GetById([FromBody]FirmModel postModel)
         {
 
-            var client = await _clientService.GetById(postModel.ClientId).ConfigureAwait(false);
-            var model = _mapper.Map<FirmModel>(client);
+            var firm = await _firmService.GetById(postModel.FirmId).ConfigureAwait(false);
+            var model = _mapper.Map<FirmModel>(firm);
             return Ok(model);
         }
        
         [HttpPost("addDevice")]
-        public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
+        public async Task<ActionResult<Device>> AddClientItem([FromBody]AddClientModel model)
         {
             // map model to entity
-            var device = _mapper.Map<Device>(model);
+            var client = _mapper.Map<Client>(model);
 
             try
             {
                 // create device
-                await _clientService.AddDevice(model.UserId, device).ConfigureAwait(false);
+                await _firmService.AddClient(model.FirmId, client).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -123,7 +123,7 @@ namespace FireApi.Controllers
         }
         [AllowAnonymous]
         [HttpGet("myDevices")]
-        public async Task<IActionResult> GetDevicesByUserId()
+        public async Task<IActionResult> GetClientsByUserId()
         {
             // only allow users show myDevices
             var currentUserId = Guid.Parse(User.Identity.Name);
@@ -132,8 +132,8 @@ namespace FireApi.Controllers
 
             try
             {
-                var devices = await _clientService.GetDevices(currentUserId).ConfigureAwait(false);
-                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
+                var clients = await _firmService.GetClient(currentUserId).ConfigureAwait(false);
+                var modelToReturn = _mapper.Map<IList<ClientModel>>(clients);
                 return Ok(modelToReturn);
             }
             catch (AppException ex)

@@ -11,6 +11,12 @@
     <Compile Remove="Migrations\20200125223039_AddClientFirm.Designer.cs" />
     <Compile Remove="Migrations\20200125223912_InitialMigration.cs" />
     <Compile Remove="Migrations\20200125223912_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200125224748_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200125224748_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200126154914_AddNameToClient.cs" />
+    <Compile Remove="Migrations\20200126154914_AddNameToClient.Designer.cs" />
+    <Compile Remove="Migrations\20200126155123_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200126155123_InitialMigration.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

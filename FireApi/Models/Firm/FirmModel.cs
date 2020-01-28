@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FireApi.Models.Client
+namespace FireApi.Models.Firm
 {
-    public class UpdateClientModel
+    public class FirmModel
     {
 
-        public Guid ClientId { get; set; }
         public Guid FirmId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Password { get; set; }
     }
 }
-
