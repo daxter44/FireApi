@@ -9,7 +9,7 @@ namespace FireApi.Models.Device
     public class AddDeviceModel
     {
         [Required]
-        public Guid ClientId { get; set; } 
+        public Guid Id { get; set; } 
         [Required]
         public String Name { get; set; }
         public int Temperature { get; set; }

@@ -28,6 +28,7 @@ namespace FireApi.Helpers
             CreateMap<CreateClientModel, Client>();
             CreateMap<UpdateClientModel, Client>();
             CreateMap<ClientModel, Client>();
+            CreateMap<Client, ClientModel>();
             //firm
             CreateMap<CreateFirmModel, Firm>();
             CreateMap<UpdateFirmModel, Firm>();

@@ -114,7 +114,7 @@ namespace FireApi.Controllers
             try
             {
                 // create device
-                await _clientService.AddDevice(model.ClientId, device).ConfigureAwait(false);
+                await _clientService.AddDevice(model.Id, device).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)

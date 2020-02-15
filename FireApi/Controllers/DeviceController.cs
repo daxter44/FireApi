@@ -94,20 +94,18 @@ namespace FireApi.Controllers
         // POST: api/Device
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+
         [HttpPost]
-        public async Task<ActionResult<Device>> AddDeviceItem(int userId, [FromBody]AddDeviceModel model)
+        public async Task<ActionResult<Device>> AddDeviceItem( [FromBody]AddDeviceModel model)
         {
             // map model to entity
             var device = _mapper.Map<Device>(model);
-            if(userId == 0)
-            {
-               userId = int.Parse(User.Identity.Name);
-            }
+           
 
             try
             {
                 // create device
-                await _deviceService.AddDevice(userId, device).ConfigureAwait(false);
+                await _deviceService.AddDevice(model.Id, device).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)

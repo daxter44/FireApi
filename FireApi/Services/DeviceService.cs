@@ -12,7 +12,7 @@ namespace FireApi.Services
 {
     public interface IDeviceService
     {
-        Task<Device> AddDevice(int userId, Device device);
+        Task<Device> AddDevice(Guid userId, Device device);
         Task<IEnumerable<Device>> GetAll();
         Task<Device> GetById(Guid id);
         Task<Task> Update(Device device);
@@ -28,7 +28,7 @@ namespace FireApi.Services
             _context = context;
         }
 
-        public async Task<Device> AddDevice(int clientId, Device deviceItem)
+        public async Task<Device> AddDevice(Guid clientId, Device deviceItem)
         {
             var client = _context.Client.Find(clientId);
             client.Devices.Add(deviceItem);

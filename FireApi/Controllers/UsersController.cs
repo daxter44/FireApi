@@ -40,8 +40,37 @@ namespace FireApi.Controllers
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel model)
+        {
+            var user = await _userService.Authenticate(model.Username, model.Password).ConfigureAwait(false);
+            if (user == null)
+                return BadRequest(new { message = "Username or password is incorrect" });
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+            // return basic user info and authentication token
+            return Ok(new
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role,
+                Token = tokenString
+            });
+        }
 
-       
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]RegisterModel model)
