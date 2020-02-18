@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FireApi.Entity;
+using FireApi.Models.Client;
 
 namespace FireApi.Models.Device
 {
@@ -10,5 +12,7 @@ namespace FireApi.Models.Device
         public Guid ID { get; set; }
         public String Name { get; set; }
         public int Temperature { get; set; }
+
+        public ClientModel Client { get; set; }
     }
 }

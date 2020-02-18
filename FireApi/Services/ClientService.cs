@@ -100,8 +100,8 @@ namespace FireApi.Services
 
         public async Task<IEnumerable<Device>> GetDevices(Guid clientId)
         {
-            var client = _context.Client
-               .Include(a => a.Devices).Where(a => a.ClientId == clientId).FirstOrDefault();
+            var client = await _context.Client
+               .Include(a => a.Devices).Where(a => a.ClientId == clientId).FirstOrDefaultAsync().ConfigureAwait(false);
             return client.Devices;
         }
         public async Task<Device> AddDevice(Guid clientId, Device device)

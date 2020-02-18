@@ -18,6 +18,7 @@ namespace FireApi.Services
         Task<Task> Delete(Guid id);
         Task<Client> AddClient(Guid firmId, Client client);
         Task<IEnumerable<Client>> GetClient(Guid firmId);
+        Task<IEnumerable<Device>> GetDevices(Guid firmId);
     }
     public class FirmService : IFirmService
     {
@@ -109,6 +110,19 @@ namespace FireApi.Services
             _context.Entry(Firm).State = EntityState.Modified;
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return client;
+        }
+        public async Task<IEnumerable<Device>> GetDevices(Guid firmId)
+        {
+            List<Device> devicesList = new List<Device>();
+            var FirmList = _context.Firm
+              .Include(a => a.Clients).Where(a => a.FirmId == firmId).FirstOrDefault();
+            foreach(Client i in FirmList.Clients)
+            {
+               var client = await _context.Client
+               .Include(a => a.Devices).Where(a => a.ClientId == i.ClientId).FirstOrDefaultAsync().ConfigureAwait(false);
+                devicesList.AddRange(client.Devices);
+            }
+            return devicesList;
         }
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {

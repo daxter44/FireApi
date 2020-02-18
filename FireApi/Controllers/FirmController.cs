@@ -146,5 +146,27 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [Authorize]
+        [HttpGet("devices")]
+        public async Task<IActionResult> GetDevicesByFirmId()
+        {
+            // only allow users show myDevices
+            var currentUserId = Guid.Parse(User.Identity.Name);
+            if (currentUserId == null)
+                return Forbid();
+
+            try
+            {
+                var devices = await _firmService.GetDevices(currentUserId).ConfigureAwait(false);
+                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
+                //zwraca info o urządzeniach oraz o klientach, a następnie znowu o urządzeniach tych klientów, należy okroić aby zwracał podstawowe info o urządzeniach i podst o klientach.
+                return Ok(modelToReturn);
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
