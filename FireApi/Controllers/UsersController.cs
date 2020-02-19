@@ -71,18 +71,15 @@ namespace FireApi.Controllers
             });
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]RegisterModel model)
         {
             // map model to entity
             var user = _mapper.Map<User>(model);
-
-
             try
             {
                 // create user
-                await _userService.Create(user, model.Password).ConfigureAwait(false);
+                await _userService.Create(user).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)

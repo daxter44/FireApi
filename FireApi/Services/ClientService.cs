@@ -13,7 +13,7 @@ namespace FireApi.Services
     {
         Task<IEnumerable<Client>> GetAll();
         Task<Client> GetById(Guid id);
-        Task<Client> Create(Client client, string password);
+        Task<Client> Create(Client client);
         Task<Task> Update(Client client, string password);
         Task<Task> Delete(Guid id);
         Task<Device> AddDevice(Guid clientId, Device device);
@@ -27,13 +27,13 @@ namespace FireApi.Services
             _context = context;
         }
        
-        public async Task<Client> Create(Client client, string password)
+        public async Task<Client> Create(Client client)
         {
             UserService userService = new UserService(_context);
             try
             {
                 client.User.Role = Role.Client;
-                client.User = await userService.Create(client.User, password).ConfigureAwait(false);
+                client.User = await userService.Create(client.User).ConfigureAwait(false);
             }catch (AppException ex)
             {
                throw new AppException("User service:" + ex.Message);

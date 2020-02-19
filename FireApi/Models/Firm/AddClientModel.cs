@@ -1,10 +1,12 @@
-﻿using System;
+﻿using FireApi.Entity;
+using FireApi.Models.Users;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FireApi.Models.Device
+namespace FireApi.Models.Firm
 {
     public class AddClientModel
     {
@@ -14,6 +16,9 @@ namespace FireApi.Models.Device
         public String FirstName { get; set; }
 
         public String LastName { get; set; }
+
+        [Required]
+        public User User { get; set; }
                
         //dodac 
     }

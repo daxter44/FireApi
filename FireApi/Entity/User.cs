@@ -9,6 +9,7 @@ namespace FireApi.Entity
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
+        public string EMail { get; set; }
         public string Role { get; set; }
 
         public byte[] PasswordHash { get; set; }

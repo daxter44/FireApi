@@ -48,7 +48,7 @@ namespace FireApi.Controllers
             try
             {
                 // create user
-                await _clientService.Create(client, model.registerModel.Password).ConfigureAwait(false);
+                await _clientService.Create(client).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)

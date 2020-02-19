@@ -49,7 +49,7 @@ namespace FireApi.Controllers
             try
             {
                 // create user
-                await _firmService.Create(firm, model.registerModel.Password).ConfigureAwait(false);
+                await _firmService.Create(firm).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -108,15 +108,17 @@ namespace FireApi.Controllers
 
         [Authorize(Roles = Role.Firm)]
         [HttpPost("addClient")]
-        public async Task<ActionResult<Device>> AddClientItem([FromBody]AddClientModel model)
+        public async Task<ActionResult<Client>> AddClientItem([FromBody]AddClientModel model)
         {
             // map model to entity
             var client = _mapper.Map<Client>(model);
-
+            var currentUserId = Guid.Parse(User.Identity.Name);
+            if (currentUserId == null)
+                return Forbid();
             try
             {
                 // create device
-                await _firmService.AddClient(model.FirmId, client).ConfigureAwait(false);
+                await _firmService.AddClient(currentUserId, client).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -146,7 +148,7 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize]
+        [Authorize(Roles = Role.Firm)]
         [HttpGet("devices")]
         public async Task<IActionResult> GetDevicesByFirmId()
         {

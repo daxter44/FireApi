@@ -13,7 +13,7 @@ namespace FireApi.Services
     {
         Task<IEnumerable<Firm>> GetAll();
         Task<Firm> GetById(Guid id);
-        Task<Firm> Create(Firm firm, string password);
+        Task<Firm> Create(Firm firm);
         Task<Task> Update(Firm firm, string password);
         Task<Task> Delete(Guid id);
         Task<Client> AddClient(Guid firmId, Client client);
@@ -28,13 +28,13 @@ namespace FireApi.Services
             _context = context;
         }
        
-        public async Task<Firm> Create(Firm firm, string password)
+        public async Task<Firm> Create(Firm firm)
         {
             UserService userService = new UserService(_context);
             try
             {
                 firm.User.Role = Role.Firm;
-                firm.User = await userService.Create(firm.User, password).ConfigureAwait(false);
+                firm.User = await userService.Create(firm.User).ConfigureAwait(false);
             }catch (AppException ex)
             {
                throw new AppException("User service:" + ex.Message);
@@ -104,10 +104,18 @@ namespace FireApi.Services
         }
         public async Task<Client> AddClient(Guid FirmId, Client client)
         {
-            var Firm = _context.Firm.Find(FirmId);
+            UserService userService = new UserService(_context);
+            try
+            {
+                client.FirmId = FirmId;
+                client.User.Role = Role.Client;
+                client.User = await userService.Create(client.User).ConfigureAwait(false);
+            }
+            catch (AppException ex)
+            {
+                throw new AppException("User service:" + ex.Message);
+            }
             _context.Client.Add(client);
-            Firm.Clients.Add(client);
-            _context.Entry(Firm).State = EntityState.Modified;
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return client;
         }

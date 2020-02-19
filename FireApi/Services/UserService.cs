@@ -2,6 +2,7 @@
 using FireApi.Entity;
 using FireApi.Helpers;
 using FireApi.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace FireApi.Services
             Task<User> Authenticate(string username, string password);
             Task<IEnumerable<User>> GetAll();
             Task<User> GetById(Guid id);
-            Task<User> Create(User user, string password);
+            Task<User> Create(User user);
             Task<Task> Update(User user, string password = null);
             Task<Task> Delete(Guid id);
         }
@@ -59,21 +60,21 @@ namespace FireApi.Services
                 return await _context.Users.FindAsync(id).ConfigureAwait(false);
             }
 
-            public async Task<User> Create(User user, string password)
+            public async Task<User> Create(User user)
             {
                 // validation
-                if (string.IsNullOrWhiteSpace(password))
-                    throw new AppException("Password is required");
+                var password = GenerateRandomPassword();
                 var anyExist = await _context.Users.AnyAsync(x => x.Username == user.Username).ConfigureAwait(false);
-                if (anyExist)
-                    throw new AppException("Username \"" + user.Username + "\" is already taken");
+                if (!anyExist)
+                    anyExist = await _context.Users.AnyAsync(x => x.EMail == user.EMail).ConfigureAwait(false);
 
+                if (anyExist)
+                        throw new AppException("Username \"" + user.Username + "\" or E-mail "+user.EMail+ "is already taken");
                 byte[] passwordHash, passwordSalt;
                 CreatePasswordHash(password, out passwordHash, out passwordSalt);
-
+                await MailSender.sendMail(user.EMail,user.Username, password).ConfigureAwait(false);
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
-
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
 
@@ -96,10 +97,9 @@ namespace FireApi.Services
 
                     user.Username = userParam.Username;
                 }
-                               
 
-                // update password if provided
-                if (!string.IsNullOrWhiteSpace(password))
+            // update password if provided
+            if (!string.IsNullOrWhiteSpace(password))
                 {
                     byte[] passwordHash, passwordSalt;
                     CreatePasswordHash(password, out passwordHash, out passwordSalt);
@@ -123,10 +123,57 @@ namespace FireApi.Services
                 }
             return Task.CompletedTask;
             }
-           
+
         // private helper methods
 
-            private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        public static string GenerateRandomPassword(PasswordOptions opts = null)
+        {
+            if (opts == null) opts = new PasswordOptions()
+            {
+                RequiredLength = 8,
+                RequiredUniqueChars = 4,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireNonAlphanumeric = true,
+                RequireUppercase = true
+            };
+
+            string[] randomChars = new[] {
+                            "ABCDEFGHJKLMNOPQRSTUVWXYZ",    // uppercase 
+                            "abcdefghijkmnopqrstuvwxyz",    // lowercase
+                            "0123456789",                   // digits
+                            "!@$?_-"                        // non-alphanumeric
+                        };
+            Random rand = new Random(Environment.TickCount);
+            List<char> chars = new List<char>();
+
+            if (opts.RequireUppercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+            if (opts.RequireLowercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[1][rand.Next(0, randomChars[1].Length)]);
+
+            if (opts.RequireDigit)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[2][rand.Next(0, randomChars[2].Length)]);
+
+            if (opts.RequireNonAlphanumeric)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[3][rand.Next(0, randomChars[3].Length)]);
+
+            for (int i = chars.Count; i < opts.RequiredLength
+                || chars.Distinct().Count() < opts.RequiredUniqueChars; i++)
+            {
+                string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                chars.Insert(rand.Next(0, chars.Count),
+                    rcs[rand.Next(0, rcs.Length)]);
+            }
+
+            return new string(chars.ToArray());
+        }
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
             {
                 if (password == null) throw new ArgumentNullException("password");
                 if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "password");

@@ -41,7 +41,7 @@ namespace FireApi.Controllers
 
         // GET: api/Device
 
-        [AllowAnonymous]
+        [Authorize(Roles = Role.Firm + ", " + Role.Client)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Device>>> GetAllDevices()
         {
@@ -53,7 +53,7 @@ namespace FireApi.Controllers
 
         // GET: api/Device/5
 
-        [Authorize(Roles = Role.Admin)]
+        [Authorize(Roles = Role.Firm + ", " + Role.Client)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Device>> GetDeviceItem(Guid id)
         {             

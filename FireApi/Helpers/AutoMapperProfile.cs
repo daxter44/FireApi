@@ -32,6 +32,7 @@ namespace FireApi.Helpers
             //firm
             CreateMap<CreateFirmModel, Firm>();
             CreateMap<UpdateFirmModel, Firm>();
+            CreateMap<AddClientModel, Client>();
             CreateMap<FirmModel, Firm>();
         }
     }
