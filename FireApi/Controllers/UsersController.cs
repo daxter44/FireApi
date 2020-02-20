@@ -22,7 +22,7 @@ using static FireApi.Services.UserService;
 namespace FireApi.Controllers
 {
 
-    [Authorize(Roles = Role.Admin)]
+    [Authorize(Roles = Role.Firm + ", " + Role.Admin)]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -108,6 +108,21 @@ namespace FireApi.Controllers
             return Ok(model);
         }
 
+        [Authorize(Roles = Role.Firm + ", " + Role.Admin)]
+        [HttpPost("generatePassword")]
+        public async Task<IActionResult> GenerateNewPassword([FromBody]UserIdModel id)
+        {
+            try { 
+            var user = await _userService.GenerateNewPassword(id.Id).ConfigureAwait(false);
+            return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody]UpdateModel model)
@@ -118,7 +133,7 @@ namespace FireApi.Controllers
             try
             {
                 // update user 
-                await _userService.Update(user, model.Password).ConfigureAwait(false);
+                await _userService.Update(user).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)

@@ -19,6 +19,7 @@ namespace FireApi.Services
             Task<User> GetById(Guid id);
             Task<User> Create(User user);
             Task<Task> Update(User user, string password = null);
+            Task<Task> GenerateNewPassword(Guid id);
             Task<Task> Delete(Guid id);
         }
 
@@ -80,8 +81,29 @@ namespace FireApi.Services
 
                 return user;
             }
+            public async Task<Task> GenerateNewPassword(Guid id)
+            {
+                var user = await _context.Users.FindAsync(id);
 
-            public async Task<Task> Update(User userParam, string password = null)
+                var password = GenerateRandomPassword();
+            await MailSender.sendMail(user.EMail, user.Username, password).ConfigureAwait(false);
+            // update password if provided
+            if (!string.IsNullOrWhiteSpace(password))
+                        {
+                            byte[] passwordHash, passwordSalt;
+                            CreatePasswordHash(password, out passwordHash, out passwordSalt);
+
+                            user.PasswordHash = passwordHash;
+                            user.PasswordSalt = passwordSalt;
+                        }
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+            return Task.CompletedTask;
+
+
+        }
+        public async Task<Task> Update(User userParam, string password = null)
             {
                 var user = await _context.Users.FindAsync(userParam.Id);
 

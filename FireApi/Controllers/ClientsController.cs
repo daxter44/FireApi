@@ -15,6 +15,7 @@ using FireApi.Models.Client;
 using Microsoft.AspNetCore.Authorization;
 using FireApi.Models.Device;
 using FireApi.Models.Firm;
+using FireApi.Models.Users;
 
 namespace FireApi.Controllers
 {
@@ -23,14 +24,17 @@ namespace FireApi.Controllers
     public class ClientsController : ControllerBase
     {
         private IClientService _clientService;
+        private IUserService _userService;
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
 
         public ClientsController(
+            IUserService userService,
             IClientService clientService,
             IMapper mapper,
             IOptions<AppSettings> appSettings)
         {
+            _userService = userService;
             _clientService = clientService;
             _mapper = mapper;
             _appSettings = appSettings.Value;
@@ -60,12 +64,12 @@ namespace FireApi.Controllers
 
 
         [Authorize(Roles = Role.Firm)]
-        [HttpPut("delete")]
-        public async Task<ActionResult<Client>> DeleteClient(UpdateClientModel model)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Client>> DeleteClient(Guid id)
         {
             try
             {
-                await _clientService.Delete(model.ClientId).ConfigureAwait(false);
+                await _clientService.Delete(id).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -75,16 +79,20 @@ namespace FireApi.Controllers
             }
         }
         [Authorize(Roles = Role.Firm)]
-        [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody]UpdateClientModel model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody]UpdateClientModel model)
         {
             // map model to entity and set id
             var client = _mapper.Map<Client>(model);
-
+            
+            if (id != client.ClientId)
+            {
+                client.ClientId = id;
+            }
             try
             {
                 // update user 
-                await _clientService.Update(client, model.Password).ConfigureAwait(false);
+                await _clientService.Update(client, null).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -95,13 +103,15 @@ namespace FireApi.Controllers
         }
 
         [Authorize(Roles = Role.Firm)]
-        [HttpPost("getById")]
-        public async Task<IActionResult> GetById([FromBody]ClientModel postModel)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-
-            var client = await _clientService.GetById(postModel.ClientId).ConfigureAwait(false);
-            var model = _mapper.Map<FirmModel>(client);
-            return Ok(model);
+            var client = await _clientService.GetById(id).ConfigureAwait(false);
+            var user = await _userService.GetById(id).ConfigureAwait(false);
+            var modelClient = _mapper.Map<ClientModel>(client);
+            var modelUser = _mapper.Map<UserModel>(user);
+            modelClient.User = modelUser;
+            return Ok(modelClient);
         }
 
         [Authorize(Roles = Role.Firm)]

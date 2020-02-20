@@ -108,7 +108,7 @@ namespace FireApi.Controllers
 
         [Authorize(Roles = Role.Firm)]
         [HttpPost("addClient")]
-        public async Task<ActionResult<Client>> AddClientItem([FromBody]AddClientModel model)
+        public async Task<ActionResult<Client>> AddClient([FromBody]AddClientModel model)
         {
             // map model to entity
             var client = _mapper.Map<Client>(model);

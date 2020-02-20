@@ -49,6 +49,8 @@ namespace FireApi.Services
         {
             var client = await _context.Client.FindAsync(clientParam.ClientId);
 
+            var user = await _context.Users.FindAsync(clientParam.ClientId);
+
             if (client == null)
                 throw new AppException("Client not found");
 
@@ -62,6 +64,8 @@ namespace FireApi.Services
             if (!string.IsNullOrWhiteSpace(clientParam.LastName))
                 client.LastName = clientParam.LastName;
 
+            if (!string.IsNullOrWhiteSpace(clientParam.User.EMail))
+                user.EMail = clientParam.User.EMail;
             // update password if provided
             if (!string.IsNullOrWhiteSpace(password))
             {
@@ -72,7 +76,7 @@ namespace FireApi.Services
                 client.User.PasswordSalt = passwordSalt;
             }
 
-            _context.Users.Update(client.User);
+            _context.Users.Update(user);
             _context.Client.Update(client);
             await _context.SaveChangesAsync().ConfigureAwait(false);
             return Task.CompletedTask;
@@ -80,9 +84,11 @@ namespace FireApi.Services
         public  async Task<Task> Delete(Guid id)
         {
             var client = await _context.Client.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             if (client != null)
             {
                 _context.Client.Remove(client);
+                _context.Users.Remove(user);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
             }
             return Task.CompletedTask;
