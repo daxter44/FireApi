@@ -31,10 +31,10 @@ namespace FireApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-
             services.AddDbContext<DataContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DataContext")));
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+       
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // configure strongly typed settings objects
@@ -57,7 +57,7 @@ namespace FireApi
                    OnTokenValidated = context =>
                    {
                        var userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-                       var userId = int.Parse(context.Principal.Identity.Name);
+                       var userId = Guid.Parse(context.Principal.Identity.Name);
                        var user = userService.GetById(userId);
                        if (user == null)
                        {
@@ -82,6 +82,10 @@ namespace FireApi
             services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IDeviceService, DeviceService>();
+
+            services.AddScoped<IClientService, ClientService>();
+
+            services.AddScoped<IFirmService, FirmService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

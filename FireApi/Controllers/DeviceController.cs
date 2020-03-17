@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FireApi.Data;
-using FireApi.Models;
 using Microsoft.AspNetCore.Authorization;
-using FireApi.Models.Users;
 using FireApi.Services;
 using AutoMapper;
 using FireApi.Helpers;
 using Microsoft.Extensions.Options;
-using FireApi.Models;
 using FireApi.Entity;
 using FireApi.Models.Device;
 
@@ -41,7 +34,7 @@ namespace FireApi.Controllers
 
         // GET: api/Device
 
-        [AllowAnonymous]
+        [Authorize(Roles = Role.Firm + ", " + Role.Client)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Device>>> GetAllDevices()
         {
@@ -53,7 +46,7 @@ namespace FireApi.Controllers
 
         // GET: api/Device/5
 
-        [Authorize(Roles = Role.Admin)]
+        [Authorize(Roles = Role.Firm + ", " + Role.Client)]
         [HttpGet("{id}")]
         public async Task<ActionResult<Device>> GetDeviceItem(Guid id)
         {             
@@ -94,20 +87,17 @@ namespace FireApi.Controllers
         // POST: api/Device
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+
         [HttpPost]
-        public async Task<ActionResult<Device>> AddDeviceItem(int userId, [FromBody]AddDeviceModel model)
+        public async Task<ActionResult<Device>> AddDeviceItem( [FromBody]AddDeviceModel model)
         {
             // map model to entity
-            var device = _mapper.Map<Device>(model);
-            if(userId == 0)
-            {
-               userId = int.Parse(User.Identity.Name);
-            }
+            var device = _mapper.Map<Device>(model);          
 
             try
             {
                 // create device
-                await _deviceService.AddDevice(userId, device).ConfigureAwait(false);
+                await _deviceService.AddDevice(model.Id, device).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -116,13 +106,11 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-       
+               
         // DELETE: api/Device/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Device>> DeleteDeviceItem(Guid id)
         {
-
             try
             {
                 // create device
@@ -135,6 +123,8 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+       
 
     }
 }

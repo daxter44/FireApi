@@ -13,9 +13,13 @@ namespace FireApi.Entity
         public Guid ID { get; set; }
 
         public String Name { get; set; }
-        public int Temperature { get; set; }
+        public String Model { get; set; }
+        public String SerialNumber { get; set; }
+        public DateTime InstalationDate { get; set; }
+
+        public DeviceStatus Status { get; set; }
         [Required]
-        public virtual User user { get; set; }
+        public virtual Client Client { get; set; }
 
     }
 }

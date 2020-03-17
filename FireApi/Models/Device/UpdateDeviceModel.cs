@@ -12,6 +12,11 @@ namespace FireApi.Models.Device
         public Guid ID { get; set; }
         [Required]
         public String Name { get; set; }
-        public int Temperature { get; set; }
+        [Required]
+        public String Model { get; set; }
+
+        public DateTime InstalationDate { get; set; }
+        [Required]
+        public String SerialNumber { get; set; }
     }
 }

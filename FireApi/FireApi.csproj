@@ -5,9 +5,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200125183949_InitialCreate.cs" />
+    <Compile Remove="Migrations\20200125183949_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\20200125223039_AddClientFirm.cs" />
+    <Compile Remove="Migrations\20200125223039_AddClientFirm.Designer.cs" />
+    <Compile Remove="Migrations\20200125223912_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200125223912_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200125224748_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200125224748_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200126154914_AddNameToClient.cs" />
+    <Compile Remove="Migrations\20200126154914_AddNameToClient.Designer.cs" />
+    <Compile Remove="Migrations\20200126155123_InitialMigration.cs" />
+    <Compile Remove="Migrations\20200126155123_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200315205241_AddDeviceStatus.cs" />
+    <Compile Remove="Migrations\20200315205241_AddDeviceStatus.Designer.cs" />
+    <Compile Remove="Migrations\20200316172518_AddStatusDevice.cs" />
+    <Compile Remove="Migrations\20200316172518_AddStatusDevice.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="MailKit" Version="2.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,6 +41,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
 </Project>

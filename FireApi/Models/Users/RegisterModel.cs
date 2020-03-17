@@ -12,18 +12,12 @@ namespace FireApi.Models.Users
         {
             Role = "User";
         }
-
-        [Required]
-        public string FirstName { get; set; }
-
-        [Required]
-        public string LastName { get; set; }
-
         [Required]
         public string Username { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        [EmailAddress]
+        public string EMail { get; set; }
 
         public string Role { get; set; }
     }

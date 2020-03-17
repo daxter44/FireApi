@@ -22,7 +22,7 @@ using static FireApi.Services.UserService;
 namespace FireApi.Controllers
 {
 
-    [Authorize(Roles = Role.Admin)]
+    [Authorize(Roles = Role.Firm + ", " + Role.Admin)]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
@@ -40,16 +40,13 @@ namespace FireApi.Controllers
             _mapper = mapper;
             _appSettings = appSettings.Value;
         }
-
         [AllowAnonymous]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody]AuthenticateModel model)
         {
-            var user = await _userService.Authenticate(model.Username, model.Password).ConfigureAwait(false);
-
+            var user = await _userService.Authenticate(model.Email, model.Password).ConfigureAwait(false);
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -64,30 +61,25 @@ namespace FireApi.Controllers
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
-
             // return basic user info and authentication token
             return Ok(new
             {
                 Id = user.Id,
                 Username = user.Username,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                Role = user.Role,
                 Token = tokenString
             });
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody]RegisterModel model)
         {
             // map model to entity
             var user = _mapper.Map<User>(model);
-
-
             try
             {
                 // create user
-                await _userService.Create(user, model.Password).ConfigureAwait(false);
+                await _userService.Create(user).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -116,6 +108,21 @@ namespace FireApi.Controllers
             return Ok(model);
         }
 
+        [Authorize(Roles = Role.Firm + ", " + Role.Admin)]
+        [HttpPost("generatePassword")]
+        public async Task<IActionResult> GenerateNewPassword([FromBody]UserIdModel id)
+        {
+            try { 
+            var user = await _userService.GenerateNewPassword(id.Id).ConfigureAwait(false);
+            return Ok();
+            }
+            catch (AppException ex)
+            {
+                // return error message if there was an exception
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody]UpdateModel model)
@@ -126,7 +133,7 @@ namespace FireApi.Controllers
             try
             {
                 // update user 
-                await _userService.Update(user, model.Password).ConfigureAwait(false);
+                await _userService.Update(user).ConfigureAwait(false);
                 return Ok();
             }
             catch (AppException ex)
@@ -151,45 +158,6 @@ namespace FireApi.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [HttpPost("addDevice")]
-        public async Task<ActionResult<Device>> AddDeviceItem([FromBody]AddDeviceModel model)
-        {
-            // map model to entity
-            var device = _mapper.Map<Device>(model);
-
-            try
-            {
-                // create device
-                await _userService.AddDevice(model.UserId, device).ConfigureAwait(false);
-                return Ok();
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [AllowAnonymous]
-        [HttpGet("myDevices")]
-        public async Task<IActionResult> GetDevicesByUserId()
-        {
-            // only allow users show myDevices
-            var currentUserId = int.Parse(User.Identity.Name);
-            if (currentUserId == null)
-                return Forbid();
-
-            try
-            {
-                var devices = await _userService.GetDevices(currentUserId).ConfigureAwait(false);
-                var modelToReturn = _mapper.Map<IList<DeviceModel>>(devices);
-                return Ok(modelToReturn);               
-            }
-            catch (AppException ex)
-            {
-                // return error message if there was an exception
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        
     }
 }

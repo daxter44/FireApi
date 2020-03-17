@@ -14,13 +14,22 @@ namespace FireApi.Data
         {                
         }
         
-        public DbSet<Device> DeviceItems { get; set; }
+        public DbSet<Device> Device { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Firm> Firm { get; set; }
+        public DbSet<Client> Client { get; set; }
+
+        public DbSet<Address> Address { get; set; }
+
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Device>().ToTable("Devices");
             modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Client>().ToTable("Clients");
+            modelBuilder.Entity<Firm>().ToTable("Firms");
+            modelBuilder.Entity<Address>().ToTable("Address");
 
         }
 
