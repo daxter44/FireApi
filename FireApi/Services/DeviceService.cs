@@ -17,6 +17,7 @@ namespace FireApi.Services
         Task<Device> GetById(Guid id);
         Task<Task> Update(Device device);
         Task<Task>  Delete(Guid id);
+        Task<Device> GetDetails(Guid id);
     }
     public class DeviceService : IDeviceService 
     {
@@ -96,10 +97,10 @@ namespace FireApi.Services
             return Task.CompletedTask;
         }
 
-        public async Task<DeviceStatus> GetStatus(Guid id)
+        public async Task<Device> GetDetails(Guid id)
         {
-            var deviceStatus = await _context.Device.FindAsync(id);
-            return deviceStatus.Status;
+            var deviceStatus = await _context.Device.Include(a => a.Status).FirstOrDefaultAsync().ConfigureAwait(false);
+            return deviceStatus;
         }
         private async Task<bool> DeviceItemExists(Guid id)
         {

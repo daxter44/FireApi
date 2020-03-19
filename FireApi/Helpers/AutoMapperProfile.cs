@@ -24,6 +24,8 @@ namespace FireApi.Helpers
             CreateMap<Device, DeviceModel>();
             CreateMap<AddDeviceModel, Device>();
             CreateMap<UpdateDeviceModel, Device>();
+
+            CreateMap<DeviceStatus, DeviceStatusModel>();
             //client
             CreateMap<CreateClientModel, Client>();
             CreateMap<UpdateClientModel, Client>();

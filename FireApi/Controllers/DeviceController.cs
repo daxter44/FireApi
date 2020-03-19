@@ -59,6 +59,19 @@ namespace FireApi.Controllers
             return Ok(model);
         }
 
+        [Authorize(Roles = Role.Firm + ", " + Role.Client)]
+        [HttpGet("details/{id}")]
+        public async Task<ActionResult<Device>> GetDeviceDetails(Guid id)
+        {
+            var deviceItem = await _deviceService.GetDetails(id).ConfigureAwait(false);
+            if (deviceItem == null)
+            {
+                return NotFound();
+            }
+            var model = _mapper.Map<DeviceModel>(deviceItem);
+            return Ok(model);
+        }
+
         // PUT: api/Device/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.

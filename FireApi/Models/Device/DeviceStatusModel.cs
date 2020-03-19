@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FireApi.Models.Device
 {
-    public class DeviceStatus
+    public class DeviceStatusModel
     {
         public DateTime StatusDate { get; set; }
         public decimal WaterPreasure { get; set; }
