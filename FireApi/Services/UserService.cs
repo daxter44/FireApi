@@ -1,5 +1,5 @@
-﻿using FireApi.Data;
-using FireApi.Entity;
+﻿using FireApi.Database;
+using FireApi.Database.Entity;
 using FireApi.Helpers;
 using FireApi.Models;
 using Microsoft.AspNetCore.Identity;

@@ -1,12 +1,11 @@
-﻿using FireApi.Entity;
-using FireApi.Models;
+﻿using FireApi.Database.Entity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FireApi.Data
+namespace FireApi.Database
 {
     public class DataContext : DbContext
     {

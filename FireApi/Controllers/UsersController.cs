@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using FireApi.Entity;
+using FireApi.Database.Entity;
 using FireApi.Helpers;
 using FireApi.Models;
 using FireApi.Models.Device;

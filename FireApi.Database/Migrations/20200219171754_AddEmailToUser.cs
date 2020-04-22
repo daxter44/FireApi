@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace FireApi.Migrations
+namespace FireApi.Database
 {
     public partial class AddEmailToUser : Migration
     {

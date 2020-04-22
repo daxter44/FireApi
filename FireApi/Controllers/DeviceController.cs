@@ -7,7 +7,7 @@ using FireApi.Services;
 using AutoMapper;
 using FireApi.Helpers;
 using Microsoft.Extensions.Options;
-using FireApi.Entity;
+using FireApi.Database.Entity;
 using FireApi.Models.Device;
 
 namespace FireApi.Controllers

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace FireApi.Migrations
+namespace FireApi.Database
 {
     public partial class MoveFirstLastNameAndDevicesToClient : Migration
     {

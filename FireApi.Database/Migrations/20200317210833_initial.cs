@@ -1,20 +1,35 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace FireApi.Migrations
+
+namespace FireApi.Database
 {
-    public partial class InitialMigration : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Address",
+                columns: table => new
+                {
+                    ID = table.Column<Guid>(nullable: false),
+                    City = table.Column<string>(nullable: true),
+                    Street = table.Column<string>(nullable: true),
+                    ZipCode = table.Column<string>(nullable: true),
+                    HouseNumber = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Address", x => x.ID);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    FirstName = table.Column<string>(nullable: true),
-                    LastName = table.Column<string>(nullable: true),
                     Username = table.Column<string>(nullable: true),
+                    EMail = table.Column<string>(nullable: true),
                     Role = table.Column<string>(nullable: true),
                     PasswordHash = table.Column<byte[]>(nullable: true),
                     PasswordSalt = table.Column<byte[]>(nullable: true)
@@ -30,11 +45,17 @@ namespace FireApi.Migrations
                 {
                     FirmId = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    Addres = table.Column<string>(nullable: true)
+                    AddressID = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Firms", x => x.FirmId);
+                    table.ForeignKey(
+                        name: "FK_Firms_Address_AddressID",
+                        column: x => x.AddressID,
+                        principalTable: "Address",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Firms_Users_FirmId",
                         column: x => x.FirmId,
@@ -50,11 +71,18 @@ namespace FireApi.Migrations
                     ClientId = table.Column<Guid>(nullable: false),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
-                    FirmId = table.Column<Guid>(nullable: true)
+                    FirmId = table.Column<Guid>(nullable: true),
+                    AddressID = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clients", x => x.ClientId);
+                    table.ForeignKey(
+                        name: "FK_Clients_Address_AddressID",
+                        column: x => x.AddressID,
+                        principalTable: "Address",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Clients_Users_ClientId",
                         column: x => x.ClientId,
@@ -75,9 +103,10 @@ namespace FireApi.Migrations
                 {
                     ID = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    Temperature = table.Column<int>(nullable: false),
-                    ClientId = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: true)
+                    Model = table.Column<string>(nullable: true),
+                    SerialNumber = table.Column<string>(nullable: true),
+                    InstalationDate = table.Column<DateTime>(nullable: false),
+                    ClientId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -88,13 +117,36 @@ namespace FireApi.Migrations
                         principalTable: "Clients",
                         principalColumn: "ClientId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Devices_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "DeviceStatus",
+                columns: table => new
+                {
+                    DeviceStatusId = table.Column<Guid>(nullable: false),
+                    DeviceId = table.Column<Guid>(nullable: false),
+                    StatusDate = table.Column<DateTime>(nullable: false),
+                    WaterPreasure = table.Column<decimal>(nullable: false),
+                    FlowTemperature = table.Column<decimal>(nullable: false),
+                    WaterTemperature = table.Column<decimal>(nullable: false),
+                    ActiveMode = table.Column<string>(nullable: true),
+                    Wetness = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeviceStatus", x => x.DeviceStatusId);
+                    table.ForeignKey(
+                        name: "FK_DeviceStatus_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_AddressID",
+                table: "Clients",
+                column: "AddressID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_FirmId",
@@ -107,13 +159,22 @@ namespace FireApi.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Devices_UserId",
-                table: "Devices",
-                column: "UserId");
+                name: "IX_DeviceStatus_DeviceId",
+                table: "DeviceStatus",
+                column: "DeviceId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Firms_AddressID",
+                table: "Firms",
+                column: "AddressID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DeviceStatus");
+
             migrationBuilder.DropTable(
                 name: "Devices");
 
@@ -122,6 +183,9 @@ namespace FireApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Firms");
+
+            migrationBuilder.DropTable(
+                name: "Address");
 
             migrationBuilder.DropTable(
                 name: "Users");

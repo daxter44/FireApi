@@ -1,4 +1,4 @@
-﻿using FireApi.Entity;
+﻿using FireApi.Database.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FireApi.Entity
+namespace FireApi.Database.Entity
 {
     public class Firm 
     {

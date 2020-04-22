@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FireApi.Entity;
+using FireApi.Database.Entity;
 using FireApi.Models.Client;
 
 namespace FireApi.Models.Device

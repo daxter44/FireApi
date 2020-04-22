@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FireApi.Models.Users;
 using FireApi.Models.Device;
-using FireApi.Entity;
+using FireApi.Database.Entity;
 using FireApi.Models.Client;
 using FireApi.Models.Firm;
 
