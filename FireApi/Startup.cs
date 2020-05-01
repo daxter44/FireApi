@@ -9,6 +9,7 @@ using System;
 using AutoMapper;
 using FireApi.Helpers;
 using System.Text;
+using MySqlConnector;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace FireApi
         {
             services.AddCors();
             services.AddDbContext<DataContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DataContext")));
+                    options.UseMySql(Configuration.GetConnectionString("DataContext")));
             services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
        
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
