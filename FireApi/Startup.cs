@@ -9,12 +9,13 @@ using System;
 using AutoMapper;
 using FireApi.Helpers;
 using System.Text;
-using MySqlConnector;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Threading.Tasks;
-using static FireApi.Services.UserService;
 using FireApi.Services;
+using FireApi.Database.MongoDB;
+using Microsoft.Extensions.Options;
+using FireApi.Database.Repository;
 
 namespace FireApi
 {
@@ -32,10 +33,16 @@ namespace FireApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddDbContext<DataContext>(options =>
-                    options.UseMySql(Configuration.GetConnectionString("DataContext")));
+            services.AddDbContext<DataContext>(options => options.UseMySql(Configuration.GetConnectionString("DataContext"), b => b.MigrationsAssembly("WCDApi.DataBase")),
+                                                        ServiceLifetime.Transient);
+            services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
+
+
+            services.AddSingleton<IMongoDbSettings>(serviceProvider =>
+                serviceProvider.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+            services.AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>));
             services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-       
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // configure strongly typed settings objects
@@ -62,8 +69,8 @@ namespace FireApi
                        var user = userService.GetById(userId);
                        if (user == null)
                        {
-                            // return unauthorized if user no longer exists
-                            context.Fail("Unauthorized");
+                           // return unauthorized if user no longer exists
+                           context.Fail("Unauthorized");
                        }
                        return Task.CompletedTask;
                    }
