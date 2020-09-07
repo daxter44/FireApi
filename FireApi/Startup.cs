@@ -33,7 +33,7 @@ namespace FireApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddDbContext<DataContext>(options => options.UseMySql(Configuration.GetConnectionString("DataContext"), b => b.MigrationsAssembly("WCDApi.DataBase")),
+            services.AddDbContext<DataContext>(options => options.UseMySql(Configuration.GetConnectionString("DataContext"), b => b.MigrationsAssembly("FireApi.Database")),
                                                         ServiceLifetime.Transient);
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
 
@@ -90,6 +90,7 @@ namespace FireApi
             services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IDevicePropService, DevicePropService>();
 
             services.AddScoped<IClientService, ClientService>();
 

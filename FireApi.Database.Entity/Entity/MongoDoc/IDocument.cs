@@ -8,8 +8,8 @@ namespace FireApi.Database.Entity.MongoDoc
     {
         [BsonId]
         [BsonRepresentation(BsonType.String)]
-        ObjectId Id { get; set; }
+        ObjectId DocumentId { get; set; }
 
-        System.DateTime CreatedAt { get; }
+        System.DateTime CreatedAt { get;  }
     }
 }

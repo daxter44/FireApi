@@ -60,7 +60,7 @@ namespace FireApi.Database.Repository
         public virtual TDocument FindById(string id)
         {
             var objectId = new ObjectId(id);
-            var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
+            var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, objectId);
             return _collection.Find(filter).SingleOrDefault();
         }
 
@@ -69,7 +69,7 @@ namespace FireApi.Database.Repository
             return Task.Run(() =>
             {
                 var objectId = new ObjectId(id);
-                var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
+                var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, objectId);
                 return _collection.Find(filter).SingleOrDefaultAsync();
             });
         }
@@ -98,13 +98,13 @@ namespace FireApi.Database.Repository
 
         public void ReplaceOne(TDocument document)
         {
-            var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
+            var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, document.DocumentId);
             _collection.FindOneAndReplace(filter, document);
         }
 
         public virtual async Task ReplaceOneAsync(TDocument document)
         {
-            var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, document.Id);
+            var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, document.DocumentId);
             await _collection.FindOneAndReplaceAsync(filter, document);
         }
 
@@ -121,7 +121,7 @@ namespace FireApi.Database.Repository
         public void DeleteById(string id)
         {
             var objectId = new ObjectId(id);
-            var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
+            var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, objectId);
             _collection.FindOneAndDelete(filter);
         }
 
@@ -130,7 +130,7 @@ namespace FireApi.Database.Repository
             return Task.Run(() =>
             {
                 var objectId = new ObjectId(id);
-                var filter = Builders<TDocument>.Filter.Eq(doc => doc.Id, objectId);
+                var filter = Builders<TDocument>.Filter.Eq(doc => doc.DocumentId, objectId);
                 _collection.FindOneAndDeleteAsync(filter);
             });
         }
