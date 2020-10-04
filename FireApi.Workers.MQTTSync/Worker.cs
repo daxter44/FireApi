@@ -74,6 +74,7 @@ namespace FireApi.Workers.MQTTSync
             message = message.Replace(".Wednesday", "-Wednesday");
             message = message.Replace(".Sunday", "-Sunday");
             message = message.Replace("\"null\"", "null");
+            message = message.Replace("\"700\"", "\"The700\"");
             return DeviceProp.FromJson(message);
         }
 

@@ -32,6 +32,8 @@ namespace FireApi.Services
         public async Task<Device> AddDevice(Guid clientId, Device deviceItem)
         {
             var client = _context.Client.Find(clientId);
+            deviceItem.Client = client;
+            deviceItem.ID = Guid.Empty;
             client.Devices.Add(deviceItem);
             _context.Entry(client).State = EntityState.Modified;
             _context.Device.Add(deviceItem);

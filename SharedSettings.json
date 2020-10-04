@@ -1,0 +1,15 @@
+{
+  "MailStrings": {
+    "SMTPServer": "poczta.interia.pl",
+    "Port": 465,
+    "Mail": "fireapp@interia.pl",
+    "Pass": "Piece2020"
+  },
+  "ConnectionStrings": {
+    "DataContext": "server=localhost;port=3306;user=root;password=Marcinek44;database=fire"
+  },
+  "MongoDbSettings": {
+    "ConnectionString": "mongodb://localhost:27017",
+    "DatabaseName": "FireDb"
+  }
+}
